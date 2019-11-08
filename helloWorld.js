@@ -94,7 +94,9 @@ const initBuffers = gl =>{
     };
 }
 
-const drawScene = (gl,programInfo, buffers)=>{
+let squareRotation = 0;
+
+const drawScene = (gl,programInfo, buffers, deltaTime)=>{
 
   gl.clearColor(0, 0, 0, 1);  
   gl.clearDepth(1);                 
@@ -124,7 +126,14 @@ const drawScene = (gl,programInfo, buffers)=>{
 
   mat4.translate(modelViewMatrix,   
     modelViewMatrix,    
-    [-0, 0, -6]);
+    [-0, 0, -6]
+    );
+
+    mat4.rotate(modelViewMatrix,  // destination matrix
+      modelViewMatrix,  // matrix to rotate
+      squareRotation,   // amount to rotate in radians
+      [0, 0, 1]
+    );
 
     {
       /*make quad*/
@@ -182,10 +191,14 @@ const drawScene = (gl,programInfo, buffers)=>{
     const vertexCount = 4;
     gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
   }
+
+  squareRotation += deltaTime;
     }
 
+    let then = 0;
+    
 
-const main = ()=>{
+const render = now =>{
     const gl = canvas.getContext('webgl2');
 
     if (!gl) {
@@ -209,8 +222,14 @@ const main = ()=>{
 
     const buffers = initBuffers(gl);
 
-    drawScene(gl, programInfo, buffers);
+    now *= 0.001;
+    const deltaTime = now - then;
+    then = now;
+
+    drawScene(gl, programInfo, buffers, deltaTime);
+
+    resquestAnimationFram(render);
 
 }
 
-window.onload = main;
+resquestAnimationFram(render);
